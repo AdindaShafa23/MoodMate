@@ -1,0 +1,88 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                Int               @id @default(autoincrement())
+  name              String
+  email             String            @unique
+  password          String
+  role              String
+  isOnboarded       Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  childProfiles     ChildProfile[]
+  expressionRecords ExpressionRecord[]
+}
+
+model ChildProfile {
+  id                Int               @id @default(autoincrement())
+  name              String
+  age               Int
+  avatar            Int
+  autism            Boolean
+  adhd              Boolean
+  userId            Int
+  user              User             @relation(fields: [userId], references: [id])
+  sensoryPreferences SensoryPreference[]
+  moodTriggers      MoodTrigger[]
+  copingStrategies  CopingStrategy[]
+  emotionRecords    EmotionRecord[]
+  expressionRecords ExpressionRecord[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model SensoryPreference {
+  id             Int          @id @default(autoincrement())
+  preference     String
+  childProfileId Int
+  childProfile   ChildProfile @relation(fields: [childProfileId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model MoodTrigger {
+  id             Int          @id @default(autoincrement())
+  trigger        String
+  childProfileId Int
+  childProfile   ChildProfile @relation(fields: [childProfileId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model CopingStrategy {
+  id             Int          @id @default(autoincrement())
+  strategy       String
+  childProfileId Int
+  childProfile   ChildProfile @relation(fields: [childProfileId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model EmotionRecord {
+  id             Int          @id @default(autoincrement())
+  emotion        String
+  detectionType  String       @default("manual") // "manual" atau "camera"
+  childProfileId Int
+  childProfile   ChildProfile @relation(fields: [childProfileId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model ExpressionRecord {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  childProfileId Int
+  title          String       @default("Tanpa Judul")
+  text           String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  user           User         @relation(fields: [userId], references: [id])
+  childProfile   ChildProfile @relation(fields: [childProfileId], references: [id])
+}
