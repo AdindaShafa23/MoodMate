@@ -12,11 +12,12 @@ const EMOTIONS = [
     { id: "kaget", name: "Kaget", emoji: "😨", color: "#A78BFA" },
 ];
 
-interface EmotionEntry {
+export interface EmotionEntry {
     id: string;
+    userId: string;
     date: string;
     emotions: string[];
-    timestamp: number;
+    timestamp: string;
 }
 
 type ViewMode = "monthly" | "weekly" | "daily";

@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-interface EmotionRecord {
+export interface EmotionRecord {
     id: string;
     emotion: string;
     detectionType: string;

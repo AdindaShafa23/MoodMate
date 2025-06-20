@@ -73,8 +73,12 @@ export async function POST(request: Request) {
         };
 
         return NextResponse.json(response, { status: 201 });
-    } catch (error) {
-        console.error("POST /api/emotion-record error:", error);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("POST /api/emotion-record error:", error.message);
+        } else {
+            console.error("POST /api/emotion-record error:", error);
+        }
         return NextResponse.json(
             { error: "Terjadi kesalahan saat menyimpan emosi" },
             { status: 500 }
@@ -141,10 +145,14 @@ export async function GET(request: Request) {
         }));
 
         return NextResponse.json(formattedRecords, { status: 200 });
-    } catch (error) {
-        console.error("GET /api/emotion-record error:", error);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("POST /api/emotion-record error:", error.message);
+        } else {
+            console.error("POST /api/emotion-record error:", error);
+        }
         return NextResponse.json(
-            { error: "Terjadi kesalahan saat mengambil emosi" },
+            { error: "Terjadi kesalahan saat menyimpan emosi" },
             { status: 500 }
         );
     } finally {

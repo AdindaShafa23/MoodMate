@@ -32,8 +32,12 @@ export default function Home() {
                     );
                 }
                 setUserData(data.user);
-            } catch (err) {
-                setError("Gagal memuat data pengguna");
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("Terjadi kesalahan saat mengambil data pengguna");
+                }
             }
         };
 

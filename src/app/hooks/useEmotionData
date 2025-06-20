@@ -1,0 +1,130 @@
+"use client"
+import { useState } from "react"
+import { EmotionSummary } from "../types/emotion"
+
+// Mock API functions - replace with actual API calls
+const mockApiCall = <T>(data: T, delay: number = 500): Promise<T> => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(data), delay)
+  })
+}
+
+// Generate realistic mixed emotion data
+const generateMixedEmotionData = (): EmotionSummary["emotions"] => {
+  // Some days have single emotion, some have mixed
+  const scenarios = [
+    // Single emotions
+    { senang: 3, marah: 0, sedih: 0, takut: 0 },
+    { senang: 0, marah: 2, sedih: 0, takut: 0 },
+    { senang: 0, marah: 0, sedih: 1, takut: 0 },
+    { senang: 0, marah: 0, sedih: 0, takut: 1 },
+    
+    // Mixed emotions (realistic combinations)
+    { senang: 2, marah: 1, sedih: 0, takut: 0 }, // Happy but frustrated
+    { senang: 1, marah: 0, sedih: 2, takut: 0 }, // Bittersweet
+    { senang: 0, marah: 1, sedih: 1, takut: 0 }, // Angry and sad
+    { senang: 1, marah: 0, sedih: 0, takut: 2 }, // Happy but anxious
+    { senang: 0, marah: 0, sedih: 1, takut: 1 }, // Sad and scared
+    { senang: 1, marah: 1, sedih: 1, takut: 0 }, // Complex day
+    { senang: 2, marah: 0, sedih: 1, takut: 1 }, // Mixed positive/negative
+    
+    // No emotions
+    { senang: 0, marah: 0, sedih: 0, takut: 0 },
+  ]
+  
+  return scenarios[Math.floor(Math.random() * scenarios.length)]
+}
+
+export function useEmotionData() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch monthly emotion data with mixed emotions per day
+  const fetchMonthlyData = async (year: number, month: number): Promise<EmotionSummary[]> => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Generate realistic mixed emotion data for each day
+      const mockData: EmotionSummary[] = Array.from({ length: 31 }, (_, i) => {
+        const emotions = generateMixedEmotionData()
+        
+        return {
+          date: `${year}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`,
+          emotions,
+          total: emotions.senang + emotions.marah + emotions.sedih + emotions.takut
+        }
+      })
+
+      const result = await mockApiCall(mockData)
+      return result
+    } catch (err) {
+      setError('Failed to fetch monthly data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch weekly emotion data with mixed emotions per day
+  const fetchWeeklyData = async (startDate: string, endDate: string): Promise<EmotionSummary[]> => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Generate mixed emotion data for 7 days
+      const mockData: EmotionSummary[] = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(startDate)
+        date.setDate(date.getDate() + i)
+        
+        const emotions = generateMixedEmotionData()
+        
+        return {
+          date: date.toISOString().split('T')[0],
+          emotions,
+          total: emotions.senang + emotions.marah + emotions.sedih + emotions.takut
+        }
+      })
+
+      const result = await mockApiCall(mockData)
+      return result
+    } catch (err) {
+      setError('Failed to fetch weekly data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch daily emotion data with mixed emotions
+  const fetchDailyData = async (date: string): Promise<EmotionSummary> => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const emotions = generateMixedEmotionData()
+      
+      const mockData: EmotionSummary = {
+        date,
+        emotions,
+        total: emotions.senang + emotions.marah + emotions.sedih + emotions.takut
+      }
+
+      const result = await mockApiCall(mockData)
+      return result
+    } catch (err) {
+      setError('Failed to fetch daily data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return {
+    loading,
+    error,
+    fetchMonthlyData,
+    fetchWeeklyData,
+    fetchDailyData
+  }
+}

@@ -70,8 +70,12 @@ export default function EkspresikanPage() {
                     );
                 }
                 setSavedEntries(entriesData);
-            } catch (err: any) {
-                setError(err.message || "Terjadi kesalahan saat memuat data");
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("Terjadi kesalahan yang tidak diketahui");
+                }
             }
         };
 
@@ -107,8 +111,12 @@ export default function EkspresikanPage() {
             setSaved(true);
             setError("");
             setTimeout(() => setSaved(false), 3000);
-        } catch (err: any) {
-            setError(err.message || "Gagal menyimpan catatan");
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Terjadi kesalahan yang tidak diketahui");
+            }
         }
     };
 
@@ -127,8 +135,12 @@ export default function EkspresikanPage() {
 
             setSavedEntries((prev) => prev.filter((entry) => entry.id !== id));
             setError("");
-        } catch (err: any) {
-            setError(err.message || "Gagal menghapus catatan");
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Terjadi kesalahan yang tidak diketahui");
+            }
         }
     };
 
@@ -169,8 +181,12 @@ export default function EkspresikanPage() {
             setEditText("");
             setEditTitle("");
             setError("");
-        } catch (err: any) {
-            setError(err.message || "Gagal memperbarui catatan");
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Terjadi kesalahan yang tidak diketahui");
+            }
         }
     };
 
@@ -316,6 +332,7 @@ export default function EkspresikanPage() {
                                             <textarea
                                                 className="w-full p-3 border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-300 min-h-[120px] resize-none"
                                                 value={editText}
+                                                placeholder="isi"
                                                 onChange={(e) =>
                                                     setEditText(e.target.value)
                                                 }
@@ -375,8 +392,7 @@ export default function EkspresikanPage() {
                                 <Search className="w-16 h-16 mx-auto" />
                             </div>
                             <p className="text-gray-500 text-lg">
-                                Tidak ada catatan yang cocok dengan pencarian "
-                                {searchQuery}"
+                                Tidak ada catatan yang cocok dengan pencarian &quot;{searchQuery}&quot;
                             </p>
                             <button
                                 onClick={() => setSearchQuery("")}

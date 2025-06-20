@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import type { EmotionState, DayEmotionData, EmotionEntry, EmotionType } from "@/types/emotion"
+import type { EmotionState, DayEmotionData, EmotionEntry, EmotionType } from "../types/emotion"
 
 export function useEmotionState() {
   const [emotionState, setEmotionState] = useState<EmotionState>({})
