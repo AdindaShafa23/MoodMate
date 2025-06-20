@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
+    const [hydrated, setHydrated] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
     const [autism, setAutism] = useState(false);
     const [adhd, setAdhd] = useState(false);
@@ -14,34 +15,33 @@ export default function Page() {
     const [userId, setUserId] = useState<number | null>(null);
     const router = useRouter();
 
-   
+    // Hindari akses localStorage sampai benar-benar di client
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            const storedToken = localStorage.getItem("token");
-            if (!storedToken) {
-                router.push("/");
-                return;
-            }
+        setHydrated(true); // Menandakan bahwa kita sudah di sisi client
 
-            setToken(storedToken);
+        const storedToken = localStorage.getItem("token");
+        if (!storedToken) {
+            router.push("/");
+            return;
+        }
 
-            const userString = localStorage.getItem("user");
-            if (userString) {
-                try {
-                    const parsedUser = JSON.parse(userString);
-                    if (parsedUser?.id) {
-                        setUserId(parsedUser.id);
-                    } else {
-                        setError("Data user tidak valid");
-                    }
-                } catch {
-                    setError("Gagal membaca user dari localStorage");
+        setToken(storedToken);
+
+        const userString = localStorage.getItem("user");
+        if (userString) {
+            try {
+                const parsedUser = JSON.parse(userString);
+                if (parsedUser?.id) {
+                    setUserId(parsedUser.id);
+                } else {
+                    setError("Data user tidak valid");
                 }
+            } catch {
+                setError("Gagal membaca user dari localStorage");
             }
         }
     }, [router]);
 
-    // ✅ Handler Submit
     const handleSubmit = async () => {
         setError("");
 
@@ -92,18 +92,17 @@ export default function Page() {
         }
     };
 
+    // Jangan render apa-apa sampai client sudah siap
+    if (!hydrated) return null;
+
     return (
         <div className="min-h-screen flex">
             <div className="flex-1 bg-blue-300 flex flex-col items-center justify-center p-8">
                 <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center mb-8">
                     <span className="text-6xl">😊</span>
                 </div>
-                <h1 className="text-6xl font-bold text-blue-700 mb-4">
-                    MoodMate
-                </h1>
-                <p className="text-xl text-white">
-                    Teman untuk mengenal emosimu
-                </p>
+                <h1 className="text-6xl font-bold text-blue-700 mb-4">MoodMate</h1>
+                <p className="text-xl text-white">Teman untuk mengenal emosimu</p>
             </div>
 
             <div className="flex-1 bg-white flex items-center justify-center p-8">
@@ -115,9 +114,7 @@ export default function Page() {
 
                     <div className="space-y-6">
                         <div>
-                            <label className="text-gray-600 text-sm mb-2 block">
-                                Nama Anak *
-                            </label>
+                            <label className="text-gray-600 text-sm mb-2 block">Nama Anak *</label>
                             <input
                                 type="text"
                                 placeholder="Nama Anak"
@@ -129,9 +126,7 @@ export default function Page() {
                         </div>
 
                         <div>
-                            <label className="text-gray-600 text-sm mb-2 block">
-                                Usia *
-                            </label>
+                            <label className="text-gray-600 text-sm mb-2 block">Usia *</label>
                             <input
                                 type="text"
                                 placeholder="Usia"
@@ -143,9 +138,7 @@ export default function Page() {
                         </div>
 
                         <div>
-                            <label className="text-gray-600 text-sm mb-3 block">
-                                Pilih Avatar *
-                            </label>
+                            <label className="text-gray-600 text-sm mb-3 block">Pilih Avatar *</label>
                             <div className="flex gap-4 justify-center">
                                 {[0, 1, 2, 3].map((index) => (
                                     <button
@@ -168,9 +161,7 @@ export default function Page() {
                         </div>
 
                         <div>
-                            <label className="text-gray-600 text-sm mb-4 block">
-                                Kondisi
-                            </label>
+                            <label className="text-gray-600 text-sm mb-4 block">Kondisi</label>
 
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-gray-600">Autisme</span>
@@ -183,9 +174,7 @@ export default function Page() {
                                 >
                                     <span
                                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                            autism
-                                                ? "translate-x-6"
-                                                : "translate-x-1"
+                                            autism ? "translate-x-6" : "translate-x-1"
                                         }`}
                                     />
                                 </button>
@@ -202,9 +191,7 @@ export default function Page() {
                                 >
                                     <span
                                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                            adhd
-                                                ? "translate-x-6"
-                                                : "translate-x-1"
+                                            adhd ? "translate-x-6" : "translate-x-1"
                                         }`}
                                     />
                                 </button>

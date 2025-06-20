@@ -1,55 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const roles = [
-    { label: "Orang Tua", icon: "👨‍👩‍👧‍👦" },
-    { label: "Terapis", icon: "🧑‍⚕️" },
-    { label: "Pendidik", icon: "👩‍🏫" },
-];
-
-export default function RegisterPage() {
-    const [selectedRole, setSelectedRole] = useState("Orang Tua");
+export default function Page() {
+    const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
+    const [autism, setAutism] = useState(false);
+    const [adhd, setAdhd] = useState(false);
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
+    const [age, setAge] = useState("");
     const [error, setError] = useState("");
+    const [token, setToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<number | null>(null);
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // ✅ Ambil data dari localStorage di client side
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const storedToken = localStorage.getItem("token");
+            if (!storedToken) {
+                router.push("/");
+                return;
+            }
+
+            setToken(storedToken);
+
+            const userString = localStorage.getItem("user");
+            if (userString) {
+                try {
+                    const parsedUser = JSON.parse(userString);
+                    if (parsedUser?.id) {
+                        setUserId(parsedUser.id);
+                    } else {
+                        setError("Data user tidak valid");
+                    }
+                } catch {
+                    setError("Gagal membaca user dari localStorage");
+                }
+            }
+        }
+    }, [router]);
+
+    // ✅ Handler Submit
+    const handleSubmit = async () => {
         setError("");
 
+        if (!name || !age || selectedAvatar === null || !userId || !token) {
+            setError("Nama, usia, avatar, dan token/userId wajib diisi");
+            return;
+        }
+
+        const parsedAge = parseInt(age, 10);
+        if (isNaN(parsedAge) || parsedAge < 0) {
+            setError("Usia harus berupa angka yang valid");
+            return;
+        }
+
         try {
-            const response = await fetch("/api/register", {
+            const response = await fetch("/api/child-profile", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
                 body: JSON.stringify({
                     name,
-                    email,
-                    password,
-                    role: selectedRole,
+                    age: parsedAge,
+                    avatar: selectedAvatar,
+                    autism,
+                    adhd,
                 }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                setError(data.error || "Pendaftaran gagal");
+                setError(data.error || "Gagal menyimpan profil anak");
                 return;
             }
 
-            // Simpan token ke localStorage
-            localStorage.setItem("token", data.token);
-
-            // Redirect ke profil anak
-            router.push("/profilanak");
+            const childProfileId = data.childProfileId;
+            if (childProfileId) {
+                localStorage.setItem("childProfileId", childProfileId.toString());
+                router.push("/preferensisensorik");
+            } else {
+                setError("ID profil anak tidak ditemukan");
+            }
         } catch (err) {
-            setError("Terjadi kesalahan saat mendaftar");
+            console.error(err);
+            setError("Terjadi kesalahan saat menyimpan profil anak");
         }
     };
+
+    // (Kode render form tetap sama)
+}
+
 
     return (
         <div className="min-h-screen flex">
