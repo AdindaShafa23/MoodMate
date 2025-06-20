@@ -15,7 +15,11 @@ const eslintConfig = [
   {
     files: ["**/*.ts", "**/*.tsx"],
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
+      // Menonaktifkan rule dari ESLint bawaan
+      "no-unused-vars": "off",
+
+      // Menonaktifkan rule versi TypeScript-nya (jika aktif)
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
 ];
