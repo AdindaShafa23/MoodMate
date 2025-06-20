@@ -149,7 +149,7 @@ export default function StatsPage() {
         const year = date.getFullYear();
         const month = date.getMonth();
         const lastDay = new Date(year, month + 1, 0);
-        const dates = [];
+        const dates: Date[] = [];
 
         for (let day = 1; day <= lastDay.getDate(); day++) {
             dates.push(new Date(year, month, day));
@@ -158,7 +158,7 @@ export default function StatsPage() {
     };
 
     const getWeekDates = (date: Date): Date[] => {
-        const week = [];
+        const week: Date[] = [];
         const startOfWeek = new Date(date);
         const day = startOfWeek.getDay();
         const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
@@ -246,11 +246,7 @@ export default function StatsPage() {
 
     const navigateDay = (direction: "prev" | "next") => {
         const newDate = new Date(currentDate);
-        if (direction === "prev") {
-            newDate.setDate(newDate.getDate() - 1);
-        } else {
-            newDate.setDate(newDate.getDate() - 1);
-        }
+        newDate.setDate(newDate.getDate() + (direction === "prev" ? -1 : 1));
         setCurrentDate(newDate);
         setSelectedDate(newDate);
     };
