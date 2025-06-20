@@ -20,6 +20,8 @@ const eslintConfig = [
 
       // Menonaktifkan rule versi TypeScript-nya (jika aktif)
       "@typescript-eslint/no-unused-vars": "off",
+
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];
