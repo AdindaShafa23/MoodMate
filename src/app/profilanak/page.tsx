@@ -10,26 +10,43 @@ export default function Page() {
     const [name, setName] = useState("");
     const [age, setAge] = useState("");
     const [error, setError] = useState("");
+    const [token, setToken] = useState<string | null>(null);
+    const [userId, setUserId] = useState<number | null>(null);
     const router = useRouter();
 
-    // Cek autentikasi saat komponen dimuat
+   
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            router.push("/");
+        if (typeof window !== "undefined") {
+            const storedToken = localStorage.getItem("token");
+            if (!storedToken) {
+                router.push("/");
+                return;
+            }
+
+            setToken(storedToken);
+
+            const userString = localStorage.getItem("user");
+            if (userString) {
+                try {
+                    const parsedUser = JSON.parse(userString);
+                    if (parsedUser?.id) {
+                        setUserId(parsedUser.id);
+                    } else {
+                        setError("Data user tidak valid");
+                    }
+                } catch {
+                    setError("Gagal membaca user dari localStorage");
+                }
+            }
         }
     }, [router]);
 
-    // Ambil userId dari localStorage
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = user.id;
-
+    // ✅ Handler Submit
     const handleSubmit = async () => {
         setError("");
 
-        // Validasi sisi klien
-        if (!name || !age || selectedAvatar === null || !userId) {
-            setError("Nama, usia, avatar, dan userId wajib diisi");
+        if (!name || !age || selectedAvatar === null || !userId || !token) {
+            setError("Nama, usia, avatar, dan token/userId wajib diisi");
             return;
         }
 
@@ -40,7 +57,6 @@ export default function Page() {
         }
 
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch("/api/child-profile", {
                 method: "POST",
                 headers: {
@@ -63,13 +79,15 @@ export default function Page() {
                 return;
             }
 
-            // Simpan childProfileId ke localStorage (misalnya, asumsikan API mengembalikan ID)
-            // Untuk ini, kita perlu memperbarui endpoint /api/child-profile untuk mengembalikan ID
-            const childProfileId = data.childProfileId; // Asumsi API mengembalikan childProfileId
-            localStorage.setItem("childProfileId", childProfileId);
-
-            router.push("/preferensisensorik");
+            const childProfileId = data.childProfileId;
+            if (childProfileId) {
+                localStorage.setItem("childProfileId", childProfileId.toString());
+                router.push("/preferensisensorik");
+            } else {
+                setError("ID profil anak tidak ditemukan");
+            }
         } catch (err) {
+            console.error(err);
             setError("Terjadi kesalahan saat menyimpan profil anak");
         }
     };
